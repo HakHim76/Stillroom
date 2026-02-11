@@ -11,6 +11,10 @@ const taskSchema = new mongoose.Schema(
     completed: { type: Boolean, default: false },
     isPriority: { type: Boolean, default: false },
     dueDate: { type: Date, default: null },
+    hasReflection: { type: Boolean, default: false },
+    lastReflection: { type: String, default: "" },
+    lastMood: { type: String, default: "" },
+    reflectedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

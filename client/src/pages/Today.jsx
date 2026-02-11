@@ -9,8 +9,11 @@ export default function Today({ user, onLogout }) {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Focus session state
+  // activeSession = { sessionId, taskId } | null
   const [activeSession, setActiveSession] = useState(null);
+
+  // show reflection modal only after user clicks "End Session"
+  const [showReflection, setShowReflection] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -76,28 +79,69 @@ export default function Today({ user, onLogout }) {
     onLogout();
   }
 
-  // 🔹 4b: START FOCUS SESSION
-  async function startFocusSession() {
-    if (priority.length === 0 || priority.length > 3) {
-      setErr("Select 1–3 prioritized tasks to start a focus session.");
+  // start focus on a specific task (only if NOT completed and NO reflection)
+  async function startFocusSession(taskId) {
+    if (!taskId) return;
+    if (activeSession) return;
+
+    const task = tasks.find((t) => t._id === taskId);
+    if (!task) return;
+
+    // ✅ rules
+    if (task.completed) {
+      setErr("This task is already completed.");
       return;
     }
+    if (task.hasReflection) {
+      setErr("This task already has a reflection. One session per task.");
+      return;
+    }
+    if (!task.isPriority) {
+      setErr("You can only start a session from a prioritized task.");
+      return;
+    }
+
+    setErr("");
 
     try {
       const res = await fetch("/api/session/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          tasks: priority.map((t) => t._id),
-        }),
+        body: JSON.stringify({ taskId }),
       });
 
-      const data = await res.json();
-      setActiveSession(data.sessionId);
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
+      if (!res.ok) throw new Error(data?.message || "Could not start session.");
+
+      setActiveSession({ sessionId: data.sessionId, taskId });
     } catch (e) {
-      setErr("Could not start focus session.");
+      setErr(e.message || "Could not start session.");
     }
+  }
+
+  function openEndSessionReflection() {
+    if (!activeSession) return;
+    setShowReflection(true);
+  }
+
+  function cancelReflection() {
+    setShowReflection(false); // session continues
+  }
+
+  // when reflection is submitted, backend returns updated task -> update UI
+  function finishReflection(updatedTask) {
+    setTasks((prev) =>
+      prev.map((t) => (t._id === updatedTask._id ? updatedTask : t)),
+    );
+    setShowReflection(false);
+    setActiveSession(null);
   }
 
   return (
@@ -129,13 +173,6 @@ export default function Today({ user, onLogout }) {
         <button disabled={!!activeSession}>Add</button>
       </form>
 
-      {/* 🔹 Focus control */}
-      <div style={{ marginBottom: 16 }}>
-        <button onClick={startFocusSession} disabled={!!activeSession}>
-          Start Focus Session
-        </button>
-      </div>
-
       {loading ? (
         <p>Loading…</p>
       ) : (
@@ -143,86 +180,187 @@ export default function Today({ user, onLogout }) {
           <section style={{ marginBottom: 16 }}>
             <h3>Prioritize</h3>
             {priority.length === 0 ? <p>None</p> : null}
+
             <ul>
-              {priority.map((t) => (
-                <li key={t._id}>
-                  <input
-                    type="checkbox"
-                    checked={t.completed}
-                    onChange={() => toggleComplete(t._id, t.completed)}
-                    disabled={!!activeSession}
-                  />
-                  <span
-                    style={{
-                      margin: "0 8px",
-                      textDecoration: t.completed ? "line-through" : "none",
-                    }}
-                  >
-                    {t.title}
-                  </span>
-                  <button
-                    onClick={() => togglePriority(t._id, t.isPriority)}
-                    disabled={!!activeSession}
-                  >
-                    Unprioritize
-                  </button>
-                  <button
-                    onClick={() => deleteTask(t._id)}
-                    style={{ marginLeft: 6 }}
-                    disabled={!!activeSession}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
+              {priority.map((t) => {
+                const isSessionTask = activeSession?.taskId === t._id;
+                const anySession = !!activeSession;
+
+                // ✅ rules
+                const lockForever = !!t.hasReflection; // once reflected: no Start Focus, no Unprioritize
+                const startDisabled =
+                  anySession || t.completed || t.hasReflection;
+                const unprioritizeDisabled = anySession || lockForever;
+                const checkboxDisabled = anySession;
+                const deleteDisabled = anySession;
+
+                return (
+                  <li key={t._id} style={{ marginBottom: 10 }}>
+                    <input
+                      type="checkbox"
+                      checked={t.completed}
+                      onChange={() => toggleComplete(t._id, t.completed)}
+                      disabled={checkboxDisabled}
+                    />
+
+                    <span
+                      style={{
+                        margin: "0 8px",
+                        textDecoration: t.completed ? "line-through" : "none",
+                        fontWeight: isSessionTask ? 700 : 400,
+                      }}
+                    >
+                      {t.title} {isSessionTask ? "— Session in progress" : null}
+                    </span>
+
+                    {/* Unprioritize hidden/disabled after reflection */}
+                    <button
+                      onClick={() => togglePriority(t._id, t.isPriority)}
+                      disabled={unprioritizeDisabled || t.hasReflection}
+                      title={
+                        t.hasReflection
+                          ? "This task is locked after reflection."
+                          : ""
+                      }
+                    >
+                      Unprioritize
+                    </button>
+
+                    {/* Start Focus only if no reflection, not completed */}
+                    {!isSessionTask ? (
+                      <button
+                        onClick={() => startFocusSession(t._id)}
+                        style={{ marginLeft: 6 }}
+                        disabled={startDisabled}
+                        title={
+                          t.hasReflection
+                            ? "One session per task."
+                            : t.completed
+                              ? "Completed tasks can’t be focused."
+                              : anySession
+                                ? "A session is already running."
+                                : ""
+                        }
+                      >
+                        Start Focus
+                      </button>
+                    ) : (
+                      <button
+                        onClick={openEndSessionReflection}
+                        style={{ marginLeft: 6 }}
+                        disabled={showReflection}
+                      >
+                        End Session
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => deleteTask(t._id)}
+                      style={{ marginLeft: 6 }}
+                      disabled={deleteDisabled}
+                    >
+                      Delete
+                    </button>
+
+                    {/* ✅ No timer message under the focused task */}
+                    {isSessionTask && (
+                      <div
+                        style={{
+                          marginLeft: 26,
+                          marginTop: 6,
+                          fontSize: 13,
+                          opacity: 0.85,
+                        }}
+                      >
+                        Stillroom doesn’t use a timer. Focus ends when{" "}
+                        <b>you</b> decide the work is done — not when a clock
+                        does.
+                      </div>
+                    )}
+
+                    {/* ✅ Reflection displays under the task after submission */}
+                    {t.hasReflection && (
+                      <div
+                        style={{ marginLeft: 26, marginTop: 6, fontSize: 13 }}
+                      >
+                        <div>
+                          <b>Reflection:</b> {t.lastReflection || "—"}
+                        </div>
+                        {t.lastMood ? (
+                          <div>
+                            <b>Mood:</b> {t.lastMood}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </section>
 
           <section>
             <h3>Everything else</h3>
             {normal.length === 0 ? <p>None</p> : null}
+
             <ul>
-              {normal.map((t) => (
-                <li key={t._id}>
-                  <input
-                    type="checkbox"
-                    checked={t.completed}
-                    onChange={() => toggleComplete(t._id, t.completed)}
-                    disabled={!!activeSession}
-                  />
-                  <span
-                    style={{
-                      margin: "0 8px",
-                      textDecoration: t.completed ? "line-through" : "none",
-                    }}
-                  >
-                    {t.title}
-                  </span>
-                  <button
-                    onClick={() => togglePriority(t._id, t.isPriority)}
-                    disabled={!!activeSession}
-                  >
-                    Priority
-                  </button>
-                  <button
-                    onClick={() => deleteTask(t._id)}
-                    style={{ marginLeft: 6 }}
-                    disabled={!!activeSession}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
+              {normal.map((t) => {
+                const anySession = !!activeSession;
+
+                // ✅ completed tasks in Everything else cannot be prioritized
+                const priorityDisabled = anySession || t.completed;
+
+                return (
+                  <li key={t._id} style={{ marginBottom: 10 }}>
+                    <input
+                      type="checkbox"
+                      checked={t.completed}
+                      onChange={() => toggleComplete(t._id, t.completed)}
+                      disabled={anySession}
+                    />
+
+                    <span
+                      style={{
+                        margin: "0 8px",
+                        textDecoration: t.completed ? "line-through" : "none",
+                      }}
+                    >
+                      {t.title}
+                    </span>
+
+                    <button
+                      onClick={() => togglePriority(t._id, t.isPriority)}
+                      disabled={priorityDisabled}
+                      title={
+                        t.completed
+                          ? "Completed tasks can’t be prioritized."
+                          : ""
+                      }
+                    >
+                      Priority
+                    </button>
+
+                    <button
+                      onClick={() => deleteTask(t._id)}
+                      style={{ marginLeft: 6 }}
+                      disabled={anySession}
+                    >
+                      Delete
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         </>
       )}
 
-      {/* 🔹 6: Reflection modal rendering */}
-      {activeSession && (
+      {/* Reflection modal only opens after End Session click */}
+      {activeSession && showReflection && (
         <ReflectionModal
-          sessionId={activeSession}
-          onDone={() => setActiveSession(null)}
+          sessionId={activeSession.sessionId}
+          onCancel={cancelReflection}
+          onDone={finishReflection}
         />
       )}
     </div>

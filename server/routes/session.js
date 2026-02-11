@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Session = require("../models/Session");
+const Task = require("../models/Task");
 
 /**
  * START A FOCUS SESSION
@@ -52,6 +53,12 @@ router.post("/start", async (req, res) => {
  * Optional:
  *  - mood
  *  - reflection
+ *
+ * ✅ Also updates the focused Task:
+ *  - completed: true
+ *  - hasReflection: true
+ *  - lastMood / lastReflection / reflectedAt
+ *  - isPriority: true (keep as pinned artifact)
  */
 router.post("/end", async (req, res) => {
   try {
@@ -89,7 +96,28 @@ router.post("/end", async (req, res) => {
 
     console.log("FOCUS SESSION ENDED:", session._id);
 
-    res.json({ success: true, session });
+    // ✅ Update the focused task (single-task session = first task)
+    const taskId = Array.isArray(session.tasks) ? session.tasks[0] : null;
+
+    if (!taskId) {
+      // session ended fine, but no task to update
+      return res.json({ success: true, session, task: null });
+    }
+
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: taskId, userId: req.session.userId },
+      {
+        completed: true, // ✅ reflection implies completion
+        hasReflection: true,
+        lastMood: mood || "",
+        lastReflection: reflection || "",
+        reflectedAt: new Date(),
+        isPriority: true, // keep pinned as an artifact
+      },
+      { new: true },
+    );
+
+    return res.json({ success: true, session, task: updatedTask });
   } catch (err) {
     console.error("END SESSION ERROR:", err);
     res.status(500).json({ error: "Could not end focus session" });
