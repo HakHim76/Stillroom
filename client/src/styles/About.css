@@ -1,0 +1,29 @@
+.about-main {
+  padding: 60px 0;
+}
+
+.about-container {
+  width: min(760px, 92%);
+  margin: 0 auto;
+  line-height: 1.8;
+  font-size: 17px;
+}
+
+.about-container h1 {
+  margin-bottom: 24px;
+  font-size: 36px;
+}
+
+.about-lead {
+  font-size: 20px;
+  margin-bottom: 24px;
+}
+
+.about-container p {
+  margin-bottom: 22px;
+}
+
+.about-close {
+  margin-top: 40px;
+  font-weight: 600;
+}

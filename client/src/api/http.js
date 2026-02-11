@@ -1,27 +1,23 @@
-const BASE = "http://localhost:3000";
-
-export async function api(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    credentials: "include", // sessions need cookies
+export async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+    credentials: "include",
+    ...opts,
   });
 
-  // Try to parse JSON safely
   const text = await res.text();
   let data = null;
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    data = { message: text };
+    data = null;
   }
 
   if (!res.ok) {
-    const msg = data?.message || `Request failed: ${res.status}`;
+    const msg =
+      data?.message || data?.error || `Request failed (${res.status})`;
     throw new Error(msg);
   }
+
   return data;
 }

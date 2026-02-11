@@ -10,6 +10,8 @@ const taskRoutes = require("./routes/tasks");
 const sessionRoutes = require("./routes/session");
 
 const app = express();
+app.set("etag", false);
+app.set("trust proxy", 1);
 
 mongoose
   .connect(process.env.MONGO_URL)
@@ -19,14 +21,21 @@ mongoose
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 
+app.set("trust proxy", 1);
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "stillroom_dev_secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: "lax" },
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+    },
   }),
 );
+
 app.use((req, res, next) => {
   console.log("INCOMING:", req.method, req.url);
   next();

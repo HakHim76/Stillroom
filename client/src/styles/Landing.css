@@ -547,3 +547,62 @@ a {
 html {
   scroll-behavior: smooth;
 }
+/* ============ Insights ============ */
+.sr-insights {
+  padding: 28px 0 10px;
+}
+
+.sr-insights__inner {
+  width: min(980px, 92%);
+  margin: 0 auto;
+}
+
+.sr-insights__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.sr-insights__kicker {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+
+.sr-insights__title {
+  margin: 6px 0 0;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.sr-insights__next {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.sr-insights__card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.sr-insights__cardTitle {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.sr-insights__body {
+  font-size: 14px;
+  line-height: 1.7;
+  opacity: 0.9;
+
+  /* ✅ makes your “Try this:” read nicely */
+  white-space: pre-line;
+}

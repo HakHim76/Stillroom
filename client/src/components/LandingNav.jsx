@@ -9,6 +9,8 @@ export default function LandingNav({ brand }) {
         </Link>
 
         <nav className="sr-nav__links">
+          <Link to="/about">About</Link>
+
           <Link className="sr-link" to="/login">
             Login
           </Link>

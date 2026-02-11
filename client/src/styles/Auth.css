@@ -1,0 +1,131 @@
+.auth-labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.auth-peek {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.75;
+  padding: 2px 0;
+}
+
+.auth-peek:hover {
+  opacity: 1;
+}
+
+/* Auth pages */
+.auth-page {
+  min-height: calc(100vh - 120px);
+  display: grid;
+  place-items: center;
+  padding: 40px 16px;
+}
+
+.auth-card {
+  width: min(440px, 94%);
+  border-radius: 18px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.auth-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.auth-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+.auth-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.auth-sub {
+  margin: 4px 0 0;
+  opacity: 0.75;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.auth-error {
+  margin: 12px 0 0;
+  color: #b42318;
+  background: rgba(180, 35, 24, 0.08);
+  border: 1px solid rgba(180, 35, 24, 0.18);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.auth-form {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.auth-field label {
+  display: block;
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  outline: none;
+}
+
+.auth-field input:focus {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
+.auth-btn {
+  margin-top: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.88);
+  color: white;
+  cursor: pointer;
+}
+
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-foot {
+  margin-top: 14px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.auth-foot a {
+  opacity: 1;
+  text-decoration: underline;
+}

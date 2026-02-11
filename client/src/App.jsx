@@ -6,6 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import Today from "./pages/Today";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import About from "./pages/About";
 
 function RequireAuth({ user, children }) {
   if (!user) return <Navigate to="/login" replace />;
@@ -36,8 +37,8 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/" element={<LandingPage user={user} />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/about" element={<About />} />
 
       <Route
         path="/login"
@@ -45,33 +46,32 @@ export default function App() {
           user ? (
             <Navigate to="/today" replace />
           ) : (
-            <Login onAuth={handleAuth} />
+            <Login onSuccess={setUser} />
           )
         }
       />
-
       <Route
         path="/signup"
         element={
           user ? (
             <Navigate to="/today" replace />
           ) : (
-            <Signup onAuth={handleAuth} />
+            <Signup onSuccess={setUser} />
           )
         }
       />
 
-      {/* Protected */}
       <Route
         path="/today"
         element={
-          <RequireAuth user={user}>
-            <Today user={user} onLogout={handleLogout} />
-          </RequireAuth>
+          user ? (
+            <Today user={user} onLogout={() => setUser(null)} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
 
-      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
