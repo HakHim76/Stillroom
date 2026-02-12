@@ -23,8 +23,8 @@ export default function Login({ onSuccess }) {
     setBusy(true);
 
     try {
-      await authApi.login(email, password); // sets session on server
-      const me = await authApi.me(); // confirms session + returns user
+      await authApi.login(email, password);
+      const me = await authApi.me();
       onSuccess?.(me.user);
     } catch (e2) {
       setErr(e2.message);
@@ -54,7 +54,6 @@ export default function Login({ onSuccess }) {
             onSubmit={handleSubmit}
             autoComplete="off"
           >
-            {/* Helps reduce aggressive autofill in some browsers */}
             <input
               type="text"
               name="prevent_autofill"

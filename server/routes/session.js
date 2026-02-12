@@ -3,17 +3,8 @@ const router = express.Router();
 const Session = require("../models/Session");
 const Task = require("../models/Task");
 
-/**
- * START A FOCUS SESSION
- * Accepts either:
- *  - { taskId: "..." } (preferred)
- *  - { tasks: ["...", "..."] } (fallback)
- */
 router.post("/start", async (req, res) => {
   try {
-    console.log("SESSION OBJECT:", req.session);
-    console.log("START BODY:", req.body);
-
     if (!req.session || !req.session.userId) {
       console.warn("NO USER SESSION");
       return res.status(401).json({ error: "Not authenticated" });
@@ -21,7 +12,6 @@ router.post("/start", async (req, res) => {
 
     const { taskId, tasks } = req.body;
 
-    // ✅ Normalize into tasks array no matter what client sends
     let taskIds = [];
 
     if (taskId) taskIds = [taskId];
@@ -46,24 +36,8 @@ router.post("/start", async (req, res) => {
   }
 });
 
-/**
- * END A FOCUS SESSION
- * Requires:
- *  - sessionId
- * Optional:
- *  - mood
- *  - reflection
- *
- * ✅ Also updates the focused Task:
- *  - completed: true
- *  - hasReflection: true
- *  - lastMood / lastReflection / reflectedAt
- *  - isPriority: true (keep as pinned artifact)
- */
 router.post("/end", async (req, res) => {
   try {
-    console.log("END SESSION BODY:", req.body);
-
     if (!req.session || !req.session.userId) {
       return res.status(401).json({ error: "Not authenticated" });
     }
@@ -80,7 +54,6 @@ router.post("/end", async (req, res) => {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    // ✅ Security: users can only end their own sessions
     if (String(session.userId) !== String(req.session.userId)) {
       return res.status(403).json({ error: "Forbidden" });
     }
@@ -94,25 +67,21 @@ router.post("/end", async (req, res) => {
 
     await session.save();
 
-    console.log("FOCUS SESSION ENDED:", session._id);
-
-    // ✅ Update the focused task (single-task session = first task)
     const taskId = Array.isArray(session.tasks) ? session.tasks[0] : null;
 
     if (!taskId) {
-      // session ended fine, but no task to update
       return res.json({ success: true, session, task: null });
     }
 
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: req.session.userId },
       {
-        completed: true, // ✅ reflection implies completion
+        completed: true,
         hasReflection: true,
         lastMood: mood || "",
         lastReflection: reflection || "",
         reflectedAt: new Date(),
-        isPriority: true, // keep pinned as an artifact
+        isPriority: true,
       },
       { new: true },
     );

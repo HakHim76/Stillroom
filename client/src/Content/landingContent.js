@@ -2,7 +2,7 @@ export const landingContent = {
   brand: "Stillroom",
   headline: "A still room for student focus.",
   subtext:
-    "Quiet structure to prepare your mind, choose what matters, and work with clarity — without noise.",
+    "Quiet structure to prepare your mind, choose what matters, and work with clarity",
   ctas: {
     primary: { label: "Enter Stillroom", to: "/signup" },
     secondary: { label: "See how it works", to: "#how" },

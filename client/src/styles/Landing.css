@@ -1,5 +1,4 @@
 :root {
-  /* Soft blue palette inspired by Payrot */
   --bg: #e8f2f8;
   --bg-gradient: #d4e8f5;
   --surface: #ffffff;
@@ -55,13 +54,13 @@ a {
   min-height: 100vh;
 }
 
-/* ---------- CONTAINER ---------- */
+/*  CONTAINER */
 .sr-container {
   width: min(1200px, 94vw);
   margin: 0 auto;
 }
 
-/* ---------- NAV ---------- */
+/*  NAV  */
 .sr-nav {
   position: sticky;
   top: 0;
@@ -103,7 +102,7 @@ a {
   color: var(--accent);
 }
 
-/* ---------- BUTTONS ---------- */
+/* BUTTONS */
 .sr-btn {
   padding: 12px 24px;
   border-radius: 12px;
@@ -138,7 +137,7 @@ a {
   transform: translateY(-2px);
 }
 
-/* ---------- HERO - CENTERED LAYOUT ---------- */
+/* HERO */
 .sr-hero {
   position: relative;
   padding: 80px 0 60px;
@@ -155,7 +154,7 @@ a {
   text-align: center;
 }
 
-/* Background word - SUBTLE LIKE PAYROT */
+/* Background word */
 .sr-wordmark {
   position: absolute;
   top: 50%;
@@ -172,7 +171,7 @@ a {
   text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
-/* ---------- HERO COPY - CENTERED ---------- */
+/* HERO COPY */
 .sr-kicker {
   font-size: 13px;
   letter-spacing: 0.16em;
@@ -248,7 +247,7 @@ a {
   }
 }
 
-/* ---------- HERO VISUAL - CENTERED ---------- */
+/* HERO VISUAL */
 .sr-hero__visual {
   position: relative;
   height: 600px;
@@ -293,7 +292,7 @@ a {
   }
 }
 
-/* ---------- FLOATING CARDS - LEFT AND RIGHT ONLY ---------- */
+/*  FLOATING CARDS - LEFT AND RIGHT ONLY  */
 .sr-float {
   position: absolute;
   width: 240px;
@@ -356,7 +355,7 @@ a {
   width: 220px;
 }
 
-/* ---------- HOW IT WORKS ---------- */
+/* HOW IT WORKS  */
 .sr-section {
   padding: 80px 0;
   position: relative;
@@ -417,7 +416,7 @@ a {
   font-size: 15px;
 }
 
-/* ---------- FOOTER ---------- */
+/* FOOTER  */
 .sr-footer {
   padding: 40px 0;
   border-top: 1px solid rgba(90, 108, 125, 0.1);
@@ -436,7 +435,7 @@ a {
   color: var(--muted);
 }
 
-/* ---------- RESPONSIVE ---------- */
+/* RESPONSIVE  */
 @media (max-width: 1100px) {
   .sr-float--a {
     left: 2%;
@@ -543,11 +542,10 @@ a {
   }
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
-/* ============ Insights ============ */
+/* Insights  */
 .sr-insights {
   padding: 28px 0 10px;
 }
@@ -603,6 +601,5 @@ html {
   line-height: 1.7;
   opacity: 0.9;
 
-  /* ✅ makes your “Try this:” read nicely */
   white-space: pre-line;
 }

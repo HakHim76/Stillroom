@@ -4,9 +4,6 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-console.log("User model:", typeof User, User.modelName);
-
-// SIGNUP
 router.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -41,21 +38,17 @@ router.post("/signup", async (req, res) => {
       message: "Signed up",
       user: { id: user._id, email: user.email, username: user.username },
     });
-    console.log("SIGNED UP USER:", user._id, user.email);
   } catch (err) {
     console.error("SIGNUP ERROR:", err);
     res.status(500).json({ message: "Could not sign up" });
   }
 });
 
-// LOGIN
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const cleanEmail = String(email).trim().toLowerCase();
-
-    console.log("LOGIN email:", cleanEmail);
 
     const user = await User.findOne({ email: cleanEmail });
     console.log("USER FOUND?", !!user);
@@ -64,10 +57,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    console.log("Stored hash:", user.passwordHash);
-
     const ok = await bcrypt.compare(password, user.passwordHash);
-    console.log("Password match?", ok);
 
     if (!ok) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -91,7 +81,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// LOGOUT
 router.post("/logout", (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("connect.sid");
@@ -101,7 +90,6 @@ router.post("/logout", (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    // ✅ prevent 304 caching
     res.set("Cache-Control", "no-store");
 
     if (!req.session.userId) return res.status(401).json({ user: null });

@@ -33,8 +33,8 @@ export default function Signup({ onSuccess }) {
 
     setBusy(true);
     try {
-      await authApi.signup(username, email, password); // creates user + sets session
-      const me = await authApi.me(); // confirms + returns user
+      await authApi.signup(username, email, password);
+      const me = await authApi.me();
       onSuccess?.(me.user);
     } catch (e2) {
       setErr(e2.message);
@@ -64,7 +64,6 @@ export default function Signup({ onSuccess }) {
             onSubmit={handleSubmit}
             autoComplete="off"
           >
-            {/* Helps reduce aggressive autofill in some browsers */}
             <input
               type="text"
               name="prevent_autofill"

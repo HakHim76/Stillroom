@@ -29,7 +29,6 @@ export default function ReflectionModal({ sessionId, onDone, onCancel }) {
       if (!res.ok)
         throw new Error(data?.message || "Could not save reflection.");
 
-      // backend returns updated task
       if (!data.task) throw new Error("No updated task returned.");
 
       onDone?.(data.task);
@@ -77,7 +76,7 @@ export default function ReflectionModal({ sessionId, onDone, onCancel }) {
 
           <div style={{ marginBottom: 10 }}>
             <label style={{ display: "block", marginBottom: 6 }}>
-              What happened?
+              How did it go?
             </label>
             <textarea
               value={reflection}
