@@ -7,7 +7,7 @@ import HeroSection from "../components/HeroSection";
 import PillarsSection from "../components/PillarsSection";
 import FooterMinimal from "../components/FooterMinimal";
 
-export default function LandingPage() {
+export default function LandingPage({ user, onLogout }) {
   const todayKey = new Date().toISOString().slice(0, 10);
 
   const initialIndex = useMemo(() => {
@@ -38,7 +38,11 @@ export default function LandingPage() {
 
   return (
     <div className="sr-page">
-      <LandingNav brand={landingContent.brand} />
+      <LandingNav
+        brand={landingContent.brand}
+        user={user}
+        onLogout={onLogout}
+      />
 
       <main>
         <HeroSection content={landingContent} />
@@ -71,10 +75,7 @@ export default function LandingPage() {
         <PillarsSection id="how" pillars={landingContent.pillars} />
       </main>
 
-      <FooterMinimal
-        brand={landingContent.brand}
-        links={landingContent.footerLinks}
-      />
+      <FooterMinimal brand={landingContent.brand} user={user} />
     </div>
   );
 }

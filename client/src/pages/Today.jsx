@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { tasksApi } from "../api/tasks";
-import { authApi } from "../api/auth";
 import ReflectionModal from "../components/ReflectionModal";
 import "../styles/today.css";
+import LandingNav from "../components/LandingNav";
 
 export default function Today({ user, onLogout }) {
   const [tasks, setTasks] = useState([]);
@@ -16,6 +16,7 @@ export default function Today({ user, onLogout }) {
   useEffect(() => {
     let alive = true;
     setLoading(true);
+
     tasksApi
       .list()
       .then((data) => {
@@ -24,6 +25,7 @@ export default function Today({ user, onLogout }) {
       })
       .catch((e) => setErr(e.message))
       .finally(() => setLoading(false));
+
     return () => {
       alive = false;
     };
@@ -72,11 +74,7 @@ export default function Today({ user, onLogout }) {
     }
   }
 
-  async function handleLogout() {
-    await authApi.logout();
-    onLogout();
-  }
-
+  // start focus on a specific task (only if NOT completed and NO reflection)
   async function startFocusSession(taskId) {
     if (!taskId) return;
     if (activeSession) return;
@@ -139,10 +137,10 @@ export default function Today({ user, onLogout }) {
     setActiveSession(null);
   }
 
-  const displayName = user?.username || user?.email;
-
   return (
     <div className="sr-page">
+      <LandingNav brand="Stillroom" user={user} onLogout={onLogout} />
+
       <div className="sr-shell">
         <header className="sr-header">
           <div>
@@ -150,13 +148,6 @@ export default function Today({ user, onLogout }) {
             <div className="sr-subtitle">
               Constraint → focus → reflection → growth
             </div>
-          </div>
-
-          <div className="sr-userbar">
-            <span className="sr-chip">{displayName}</span>
-            <button className="sr-btn sr-btn-ghost" onClick={handleLogout}>
-              Logout
-            </button>
           </div>
         </header>
 
@@ -167,7 +158,11 @@ export default function Today({ user, onLogout }) {
             className="sr-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Add a task…"
+            placeholder={
+              activeSession
+                ? "Session running — add tasks after"
+                : "Add a task…"
+            }
             disabled={!!activeSession}
           />
           <button className="sr-btn sr-btn-primary" disabled={!!activeSession}>
@@ -180,7 +175,8 @@ export default function Today({ user, onLogout }) {
         ) : (
           <div className="sr-grid">
             <section className="sr-card">
-              <h3>Today's Focus</h3>
+              <h3>Today’s Focus</h3>
+
               {priority.length === 0 ? (
                 <p className="sr-empty">None</p>
               ) : (
@@ -224,8 +220,9 @@ export default function Today({ user, onLogout }) {
                                   Locked after reflection
                                 </span>
                               ) : (
-                                <span className="sr-pill">Prioritized</span>
+                                <span className="sr-pill">Focused</span>
                               )}
+
                               {isSessionTask ? (
                                 <span className="sr-pill sr-sessionPill">
                                   Session in progress
@@ -247,7 +244,7 @@ export default function Today({ user, onLogout }) {
                                   : ""
                               }
                             >
-                              Unprioritize
+                              Unfocus
                             </button>
 
                             {!isSessionTask ? (
@@ -316,6 +313,7 @@ export default function Today({ user, onLogout }) {
 
             <section className="sr-card">
               <h3>Everything else</h3>
+
               {normal.length === 0 ? (
                 <p className="sr-empty">None</p>
               ) : (
@@ -345,6 +343,7 @@ export default function Today({ user, onLogout }) {
                             >
                               {t.title}
                             </div>
+
                             <div className="sr-taskMeta">
                               {t.completed ? (
                                 <span className="sr-pill">Completed</span>
@@ -367,7 +366,7 @@ export default function Today({ user, onLogout }) {
                                   : ""
                               }
                             >
-                              Prioritize
+                              Focus
                             </button>
 
                             <button

@@ -8,11 +8,6 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import About from "./pages/About";
 
-function RequireAuth({ user, children }) {
-  if (!user) return <Navigate to="/login" replace />;
-  return children;
-}
-
 export default function App() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -37,8 +32,14 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/about" element={<About />} />
+      <Route
+        path="/"
+        element={<LandingPage user={user} onLogout={handleLogout} />}
+      />
+      <Route
+        path="/about"
+        element={<About user={user} onLogout={handleLogout} />}
+      />
 
       <Route
         path="/login"
@@ -46,7 +47,7 @@ export default function App() {
           user ? (
             <Navigate to="/today" replace />
           ) : (
-            <Login onSuccess={setUser} />
+            <Login onSuccess={handleAuth} />
           )
         }
       />
@@ -56,7 +57,7 @@ export default function App() {
           user ? (
             <Navigate to="/today" replace />
           ) : (
-            <Signup onSuccess={setUser} />
+            <Signup onSuccess={handleAuth} />
           )
         }
       />
@@ -65,7 +66,7 @@ export default function App() {
         path="/today"
         element={
           user ? (
-            <Today user={user} onLogout={() => setUser(null)} />
+            <Today user={user} onLogout={handleLogout} />
           ) : (
             <Navigate to="/login" replace />
           )

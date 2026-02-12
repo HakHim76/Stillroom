@@ -1,6 +1,19 @@
 import { Link } from "react-router-dom";
 
-export default function FooterMinimal({ brand, links }) {
+export default function FooterMinimal({ brand, user }) {
+  const loggedIn = !!user;
+
+  const links = loggedIn
+    ? [
+        { to: "/today", label: "Today" },
+        { to: "/about", label: "About" },
+      ]
+    : [
+        { to: "/about", label: "About" },
+        { to: "/login", label: "Login" },
+        { to: "/signup", label: "Get Started" },
+      ];
+
   return (
     <footer className="sr-footer">
       <div className="sr-container sr-footer__inner">
