@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../styles/today.css";
 
 export default function ReflectionModal({ sessionId, onDone, onCancel }) {
   const [mood, setMood] = useState("");
@@ -28,7 +29,6 @@ export default function ReflectionModal({ sessionId, onDone, onCancel }) {
 
       if (!res.ok)
         throw new Error(data?.message || "Could not save reflection.");
-
       if (!data.task) throw new Error("No updated task returned.");
 
       onDone?.(data.task);
@@ -40,67 +40,68 @@ export default function ReflectionModal({ sessionId, onDone, onCancel }) {
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.35)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          width: "min(560px, 100%)",
-          borderRadius: 10,
-          padding: 16,
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>Reflection</h3>
-        {err && <p style={{ color: "crimson" }}>{err}</p>}
+    <div className="sr-modalOverlay" role="dialog" aria-modal="true">
+      <div className="sr-modal">
+        <div className="sr-modalHeader">
+          <h3 className="sr-modalTitle">Reflection</h3>
+          <button
+            className="sr-btn sr-btn-ghost"
+            onClick={onCancel}
+            disabled={saving}
+          >
+            Close
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ display: "block", marginBottom: 6 }}>Mood</label>
-            <input
-              value={mood}
-              onChange={(e) => setMood(e.target.value)}
-              placeholder="e.g. calm, distracted, locked-in"
-              style={{ width: "100%" }}
-              disabled={saving}
-            />
-          </div>
+        <div className="sr-modalBody">
+          {err && <div className="sr-alert">{err}</div>}
 
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ display: "block", marginBottom: 6 }}>
-              How did it go?
-            </label>
-            <textarea
-              value={reflection}
-              onChange={(e) => setReflection(e.target.value)}
-              placeholder="Write a short reflection…"
-              style={{ width: "100%", minHeight: 120 }}
-              disabled={saving}
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="sr-field">
+              <label className="sr-label">Mood</label>
+              <input
+                className="sr-input"
+                value={mood}
+                onChange={(e) => setMood(e.target.value)}
+                placeholder="e.g. calm, distracted, locked-in"
+                disabled={saving}
+              />
+            </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={saving}
-              style={{ background: "#eee" }}
-            >
-              Cancel
-            </button>
-            <button type="submit" disabled={saving}>
-              {saving ? "Saving…" : "Finish Session"}
-            </button>
-          </div>
-        </form>
+            <div className="sr-field">
+              <label className="sr-label">How did it go?</label>
+              <textarea
+                className="sr-textarea"
+                value={reflection}
+                onChange={(e) => setReflection(e.target.value)}
+                placeholder="Write a short reflection…"
+                disabled={saving}
+              />
+              <div className="sr-mutedNote">
+                One or two sentences is perfect.
+              </div>
+            </div>
+
+            <div className="sr-modalFooter">
+              <button
+                type="button"
+                className="sr-btn"
+                onClick={onCancel}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="sr-btn sr-btn-primary"
+                disabled={saving}
+              >
+                {saving ? "Saving…" : "Finish Session"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
