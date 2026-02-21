@@ -3,10 +3,14 @@ import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
 import { landingContent } from "../content/landingContent";
 
-export default function About() {
+export default function About({ user, onLogout }) {
   return (
     <div className="sr-page">
-      <LandingNav brand={landingContent.brand} />
+      <LandingNav
+        brand={landingContent.brand}
+        user={user}
+        onLogout={onLogout}
+      />
 
       <main className="about-main">
         <div className="about-container">
@@ -52,8 +56,7 @@ export default function About() {
           </p>
 
           <p>
-            {" "}
-            <b>Stillroom was built to reverse that trend quietly.</b>{" "}
+            <b>Stillroom was built to reverse that trend quietly.</b>
           </p>
 
           <p>
@@ -65,14 +68,14 @@ export default function About() {
 
           <p>
             Reflection helps in consolidation. Writing about what you did
-            activates metacognition(thinking about your thinking). Research
+            activates metacognition (thinking about your thinking). Research
             shows this strengthens memory consolidation and improves learning
             transfer. Without reflection, effort fades. With reflection,
             progress compounds.
           </p>
 
           <p>
-            Stillroom isn’t about doing more. It’s about doing fewer things...
+            Stillroom isn’t about doing more. It’s about doing fewer things…
             properly.
           </p>
 
@@ -82,10 +85,7 @@ export default function About() {
         </div>
       </main>
 
-      <FooterMinimal
-        brand={landingContent.brand}
-        links={landingContent.footerLinks}
-      />
+      <FooterMinimal brand={landingContent.brand} user={user} />
     </div>
   );
 }

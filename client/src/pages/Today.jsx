@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { tasksApi } from "../api/tasks";
-import { authApi } from "../api/auth";
 import ReflectionModal from "../components/ReflectionModal";
+import "../styles/today.css";
+import LandingNav from "../components/LandingNav";
 
 export default function Today({ user, onLogout }) {
   const [tasks, setTasks] = useState([]);
@@ -10,12 +11,12 @@ export default function Today({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
 
   const [activeSession, setActiveSession] = useState(null);
-
   const [showReflection, setShowReflection] = useState(false);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+
     tasksApi
       .list()
       .then((data) => {
@@ -24,6 +25,7 @@ export default function Today({ user, onLogout }) {
       })
       .catch((e) => setErr(e.message))
       .finally(() => setLoading(false));
+
     return () => {
       alive = false;
     };
@@ -70,11 +72,6 @@ export default function Today({ user, onLogout }) {
     } catch (e) {
       setErr(e.message);
     }
-  }
-
-  async function handleLogout() {
-    await authApi.logout();
-    onLogout();
   }
 
   // start focus on a specific task (only if NOT completed and NO reflection)
@@ -141,215 +138,263 @@ export default function Today({ user, onLogout }) {
   }
 
   return (
-    <div style={{ padding: 16 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>Stillroom — Today</h2>
-        <div>
-          <span style={{ marginRight: 12 }}>{user?.email}</span>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      </div>
+    <div className="sr-page">
+      <LandingNav brand="Stillroom" user={user} onLogout={onLogout} />
 
-      {err && <p style={{ color: "crimson" }}>{err}</p>}
+      <div className="sr-shell">
+        <header className="sr-header">
+          <div>
+            <h2 className="sr-title">Stillroom — Today</h2>
+            <div className="sr-subtitle">
+              Constraint → focus → reflection → growth
+            </div>
+          </div>
+        </header>
 
-      <form onSubmit={addTask} style={{ marginBottom: 16 }}>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Add a task..."
-          style={{ marginRight: 8 }}
-          disabled={!!activeSession}
-        />
-        <button disabled={!!activeSession}>Add</button>
-      </form>
+        {err && <div className="sr-alert">{err}</div>}
 
-      {loading ? (
-        <p>Loading…</p>
-      ) : (
-        <>
-          <section style={{ marginBottom: 16 }}>
-            <h3>Prioritize</h3>
-            {priority.length === 0 ? <p>None</p> : null}
+        <form className="sr-toolbar" onSubmit={addTask}>
+          <input
+            className="sr-input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={
+              activeSession
+                ? "Session running — add tasks after"
+                : "Add a task…"
+            }
+            disabled={!!activeSession}
+          />
+          <button className="sr-btn sr-btn-primary" disabled={!!activeSession}>
+            Add
+          </button>
+        </form>
 
-            <ul>
-              {priority.map((t) => {
-                const isSessionTask = activeSession?.taskId === t._id;
-                const anySession = !!activeSession;
+        {loading ? (
+          <p>Loading…</p>
+        ) : (
+          <div className="sr-grid">
+            <section className="sr-card">
+              <h3>Today’s Focus</h3>
 
-                const lockForever = !!t.hasReflection;
-                const startDisabled =
-                  anySession || t.completed || t.hasReflection;
-                const unprioritizeDisabled = anySession || lockForever;
-                const checkboxDisabled = anySession;
-                const deleteDisabled = anySession;
+              {priority.length === 0 ? (
+                <p className="sr-empty">None</p>
+              ) : (
+                <ul className="sr-list">
+                  {priority.map((t) => {
+                    const isSessionTask = activeSession?.taskId === t._id;
+                    const anySession = !!activeSession;
 
-                return (
-                  <li key={t._id} style={{ marginBottom: 10 }}>
-                    <input
-                      type="checkbox"
-                      checked={t.completed}
-                      onChange={() => toggleComplete(t._id, t.completed)}
-                      disabled={checkboxDisabled}
-                    />
-                    <span
-                      style={{
-                        margin: "0 8px",
-                        textDecoration: t.completed ? "line-through" : "none",
-                        fontWeight: isSessionTask ? 700 : 400,
-                      }}
-                    >
-                      {t.title} {isSessionTask ? "— Session in progress" : null}
-                    </span>
-                    /Unprioritize disabled after reflection
-                    <button
-                      onClick={() => togglePriority(t._id, t.isPriority)}
-                      disabled={unprioritizeDisabled || t.hasReflection}
-                      title={
-                        t.hasReflection
-                          ? "This task is locked after reflection."
-                          : ""
-                      }
-                    >
-                      Unprioritize
-                    </button>
-                    / Start Focus only if no task reflection and is not
-                    completed
-                    {!isSessionTask ? (
-                      <button
-                        onClick={() => startFocusSession(t._id)}
-                        style={{ marginLeft: 6 }}
-                        disabled={startDisabled}
-                        title={
-                          t.hasReflection
-                            ? "One session per task."
-                            : t.completed
-                              ? "Completed tasks can’t be focused."
-                              : anySession
-                                ? "A session is already running."
-                                : ""
-                        }
-                      >
-                        Start Focus
-                      </button>
-                    ) : (
-                      <button
-                        onClick={openEndSessionReflection}
-                        style={{ marginLeft: 6 }}
-                        disabled={showReflection}
-                      >
-                        End Session
-                      </button>
-                    )}
-                    <button
-                      onClick={() => deleteTask(t._id)}
-                      style={{ marginLeft: 6 }}
-                      disabled={deleteDisabled}
-                    >
-                      Delete
-                    </button>
-                    {isSessionTask && (
-                      <div
-                        style={{
-                          marginLeft: 26,
-                          marginTop: 6,
-                          fontSize: 13,
-                          opacity: 0.85,
-                        }}
-                      >
-                        Stillroom doesn’t use a timer. Focus ends when{" "}
-                        <b>you</b> decide the work is done... not when a clock
-                        does.
-                      </div>
-                    )}
-                    {t.hasReflection && (
-                      <div
-                        style={{ marginLeft: 26, marginTop: 6, fontSize: 13 }}
-                      >
-                        <div>
-                          <b>Reflection:</b> {t.lastReflection || "—"}
-                        </div>
-                        {t.lastMood ? (
-                          <div>
-                            <b>Mood:</b> {t.lastMood}
+                    const lockForever = !!t.hasReflection;
+                    const startDisabled =
+                      anySession || t.completed || t.hasReflection;
+                    const unprioritizeDisabled = anySession || lockForever;
+                    const checkboxDisabled = anySession;
+                    const deleteDisabled = anySession;
+
+                    return (
+                      <li key={t._id} className="sr-task">
+                        <div className="sr-taskRow">
+                          <input
+                            className="sr-checkbox"
+                            type="checkbox"
+                            checked={t.completed}
+                            onChange={() => toggleComplete(t._id, t.completed)}
+                            disabled={checkboxDisabled}
+                          />
+
+                          <div className="sr-taskMain">
+                            <div
+                              className={[
+                                "sr-taskTitle",
+                                t.completed ? "sr-taskTitleCompleted" : "",
+                              ].join(" ")}
+                              title={t.title}
+                            >
+                              {t.title}
+                            </div>
+
+                            <div className="sr-taskMeta">
+                              {t.hasReflection ? (
+                                <span className="sr-pill">
+                                  Locked after reflection
+                                </span>
+                              ) : (
+                                <span className="sr-pill">Focused</span>
+                              )}
+
+                              {isSessionTask ? (
+                                <span className="sr-pill sr-sessionPill">
+                                  Session in progress
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
-                        ) : null}
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
 
-          <section>
-            <h3>Everything else</h3>
-            {normal.length === 0 ? <p>None</p> : null}
+                          <div className="sr-actions">
+                            <button
+                              className="sr-btn"
+                              onClick={() =>
+                                togglePriority(t._id, t.isPriority)
+                              }
+                              disabled={unprioritizeDisabled || t.hasReflection}
+                              title={
+                                t.hasReflection
+                                  ? "This task is locked after reflection."
+                                  : ""
+                              }
+                            >
+                              Unfocus
+                            </button>
 
-            <ul>
-              {normal.map((t) => {
-                const anySession = !!activeSession;
+                            {!isSessionTask ? (
+                              <button
+                                className="sr-btn sr-btn-primary"
+                                onClick={() => startFocusSession(t._id)}
+                                disabled={startDisabled}
+                                title={
+                                  t.hasReflection
+                                    ? "One session per task."
+                                    : t.completed
+                                      ? "Completed tasks can’t be focused."
+                                      : anySession
+                                        ? "A session is already running."
+                                        : ""
+                                }
+                              >
+                                Start Focus
+                              </button>
+                            ) : (
+                              <button
+                                className="sr-btn sr-btn-primary"
+                                onClick={openEndSessionReflection}
+                                disabled={showReflection}
+                              >
+                                End Session
+                              </button>
+                            )}
 
-                // completed tasks in Everything else cannot be prioritized
-                const priorityDisabled = anySession || t.completed;
+                            <button
+                              className="sr-btn sr-btn-danger"
+                              onClick={() => deleteTask(t._id)}
+                              disabled={deleteDisabled}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
 
-                return (
-                  <li key={t._id} style={{ marginBottom: 10 }}>
-                    <input
-                      type="checkbox"
-                      checked={t.completed}
-                      onChange={() => toggleComplete(t._id, t.completed)}
-                      disabled={anySession}
-                    />
+                        {isSessionTask && (
+                          <div className="sr-hint">
+                            Stillroom doesn’t use a timer. Focus ends when{" "}
+                            <b>you</b> decide the work is done… not when a clock
+                            does.
+                          </div>
+                        )}
 
-                    <span
-                      style={{
-                        margin: "0 8px",
-                        textDecoration: t.completed ? "line-through" : "none",
-                      }}
-                    >
-                      {t.title}
-                    </span>
+                        {t.hasReflection && (
+                          <div className="sr-reflection">
+                            <div>
+                              <b>Reflection:</b> {t.lastReflection || "—"}
+                            </div>
+                            {t.lastMood ? (
+                              <div>
+                                <b>Mood:</b> {t.lastMood}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
 
-                    <button
-                      onClick={() => togglePriority(t._id, t.isPriority)}
-                      disabled={priorityDisabled}
-                      title={
-                        t.completed
-                          ? "Completed tasks can’t be prioritized."
-                          : ""
-                      }
-                    >
-                      Prioritize
-                    </button>
+            <section className="sr-card">
+              <h3>Everything else</h3>
 
-                    <button
-                      onClick={() => deleteTask(t._id)}
-                      style={{ marginLeft: 6 }}
-                      disabled={anySession}
-                    >
-                      Delete
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        </>
-      )}
+              {normal.length === 0 ? (
+                <p className="sr-empty">None</p>
+              ) : (
+                <ul className="sr-list">
+                  {normal.map((t) => {
+                    const anySession = !!activeSession;
+                    const priorityDisabled = anySession || t.completed;
 
-      {activeSession && showReflection && (
-        <ReflectionModal
-          sessionId={activeSession.sessionId}
-          onCancel={cancelReflection}
-          onDone={finishReflection}
-        />
-      )}
+                    return (
+                      <li key={t._id} className="sr-task">
+                        <div className="sr-taskRow">
+                          <input
+                            className="sr-checkbox"
+                            type="checkbox"
+                            checked={t.completed}
+                            onChange={() => toggleComplete(t._id, t.completed)}
+                            disabled={anySession}
+                          />
+
+                          <div className="sr-taskMain">
+                            <div
+                              className={[
+                                "sr-taskTitle",
+                                t.completed ? "sr-taskTitleCompleted" : "",
+                              ].join(" ")}
+                              title={t.title}
+                            >
+                              {t.title}
+                            </div>
+
+                            <div className="sr-taskMeta">
+                              {t.completed ? (
+                                <span className="sr-pill">Completed</span>
+                              ) : (
+                                <span className="sr-pill">Available</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="sr-actions">
+                            <button
+                              className="sr-btn"
+                              onClick={() =>
+                                togglePriority(t._id, t.isPriority)
+                              }
+                              disabled={priorityDisabled}
+                              title={
+                                t.completed
+                                  ? "Completed tasks can’t be prioritized."
+                                  : ""
+                              }
+                            >
+                              Focus
+                            </button>
+
+                            <button
+                              className="sr-btn sr-btn-danger"
+                              onClick={() => deleteTask(t._id)}
+                              disabled={anySession}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+          </div>
+        )}
+
+        {activeSession && showReflection && (
+          <ReflectionModal
+            sessionId={activeSession.sessionId}
+            onCancel={cancelReflection}
+            onDone={finishReflection}
+          />
+        )}
+      </div>
     </div>
   );
 }
