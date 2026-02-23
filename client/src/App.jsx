@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { authApi } from "./api/auth";
+import RouteTransition from "./components/RouteTransition";
 
 import LandingPage from "./pages/LandingPage";
 import Today from "./pages/Today";
@@ -34,46 +35,69 @@ export default function App() {
     <Routes>
       <Route
         path="/"
-        element={<LandingPage user={user} onLogout={handleLogout} />}
+        element={
+          <RouteTransition>
+            <LandingPage user={user} onLogout={handleLogout} />
+          </RouteTransition>
+        }
       />
+
       <Route
         path="/about"
-        element={<About user={user} onLogout={handleLogout} />}
+        element={
+          <RouteTransition>
+            <About user={user} onLogout={handleLogout} />
+          </RouteTransition>
+        }
       />
 
       <Route
         path="/login"
         element={
-          user ? (
-            <Navigate to="/today" replace />
-          ) : (
-            <Login onSuccess={handleAuth} />
-          )
+          <RouteTransition>
+            {user ? (
+              <Navigate to="/today" replace />
+            ) : (
+              <Login onSuccess={handleAuth} />
+            )}
+          </RouteTransition>
         }
       />
+
       <Route
         path="/signup"
         element={
-          user ? (
-            <Navigate to="/today" replace />
-          ) : (
-            <Signup onSuccess={handleAuth} />
-          )
+          <RouteTransition>
+            {user ? (
+              <Navigate to="/today" replace />
+            ) : (
+              <Signup onSuccess={handleAuth} />
+            )}
+          </RouteTransition>
         }
       />
 
       <Route
         path="/today"
         element={
-          user ? (
-            <Today user={user} onLogout={handleLogout} />
-          ) : (
-            <Navigate to="/login" replace />
-          )
+          <RouteTransition>
+            {user ? (
+              <Today user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )}
+          </RouteTransition>
         }
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="*"
+        element={
+          <RouteTransition>
+            <Navigate to="/" replace />
+          </RouteTransition>
+        }
+      />
     </Routes>
   );
 }

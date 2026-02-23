@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { authApi } from "../api/auth";
+import logo from "../assets/stillroom-logo.svg";
 
 export default function LandingNav({ brand, user, onLogout }) {
   const loggedIn = !!user;
+  const displayName = user?.username || user?.email;
 
   async function handleLogout() {
     try {
@@ -15,35 +17,45 @@ export default function LandingNav({ brand, user, onLogout }) {
   return (
     <header className="sr-nav">
       <div className="sr-nav__inner">
-        <Link className="sr-brand" to="/">
-          {brand}
+        <Link className="sr-brandWrap" to="/" aria-label={`${brand} Home`}>
+          <img className="sr-brandLogo" src={logo} alt="" />
+          <span className="sr-brandText">{brand}</span>
         </Link>
 
         <nav className="sr-nav__links">
-          <Link to="/about">About</Link>
-
           {loggedIn ? (
             <>
-              <Link className="sr-link" to="/today">
-                Today
-              </Link>
+              <NavLink to="/" className="sr-link">
+                Home
+              </NavLink>
 
-              <button
-                type="button"
-                className="sr-btn sr-btn--ghost"
-                onClick={handleLogout}
-              >
+              <NavLink to="/today" className="sr-link">
+                Today
+              </NavLink>
+
+              <NavLink to="/about" className="sr-link">
+                About
+              </NavLink>
+
+              <span className="sr-userChip">{displayName}</span>
+
+              <button className="sr-btn sr-btn--ghost" onClick={handleLogout}>
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link className="sr-link" to="/login">
+              <NavLink to="/about" className="sr-link">
+                About
+              </NavLink>
+
+              <NavLink to="/login" className="sr-link">
                 Login
-              </Link>
-              <Link className="sr-btn sr-btn--ghost" to="/signup">
+              </NavLink>
+
+              <NavLink to="/signup" className="sr-btn sr-btn--ghost">
                 Get Started
-              </Link>
+              </NavLink>
             </>
           )}
         </nav>

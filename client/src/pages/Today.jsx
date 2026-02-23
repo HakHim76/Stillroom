@@ -3,12 +3,14 @@ import { tasksApi } from "../api/tasks";
 import ReflectionModal from "../components/ReflectionModal";
 import "../styles/today.css";
 import LandingNav from "../components/LandingNav";
+import useFlash from "../hooks/useFlash";
 
 export default function Today({ user, onLogout }) {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
+  const flash = useFlash();
 
   const [activeSession, setActiveSession] = useState(null);
   const [showReflection, setShowReflection] = useState(false);
@@ -23,7 +25,10 @@ export default function Today({ user, onLogout }) {
         if (!alive) return;
         setTasks(data.tasks);
       })
-      .catch((e) => setErr(e.message))
+      .catch((e) => {
+        setErr(e.message);
+        // no flash here — avoid noise on load
+      })
       .finally(() => setLoading(false));
 
     return () => {
@@ -34,16 +39,21 @@ export default function Today({ user, onLogout }) {
   const priority = useMemo(() => tasks.filter((t) => t.isPriority), [tasks]);
   const normal = useMemo(() => tasks.filter((t) => !t.isPriority), [tasks]);
 
+  const priorityCapReached = priority.length >= 3;
+
   async function addTask(e) {
     e.preventDefault();
     setErr("");
     if (!title.trim()) return;
+
     try {
       const data = await tasksApi.create(title);
       setTasks((prev) => [data.task, ...prev]);
       setTitle("");
+      flash.success("Task added.");
     } catch (e) {
       setErr(e.message);
+      flash.error(e.message || "Couldn’t add task.");
     }
   }
 
@@ -51,17 +61,33 @@ export default function Today({ user, onLogout }) {
     try {
       const data = await tasksApi.patch(id, { completed: !current });
       setTasks((prev) => prev.map((t) => (t._id === id ? data.task : t)));
+
+      flash.info(!current ? "Marked complete." : "Marked incomplete.");
     } catch (e) {
       setErr(e.message);
+      flash.error(e.message || "Couldn’t update task.");
     }
   }
 
   async function togglePriority(id, current) {
+    // turning priority ON, enforce cap of 3
+    if (!current) {
+      const priorityCount = tasks.filter((t) => t.isPriority).length;
+      if (priorityCount >= 3) {
+        setErr("You can only prioritize 3 tasks per day.");
+        flash.warn("Only 3 tasks can be prioritized.");
+        return;
+      }
+    }
+
     try {
       const data = await tasksApi.patch(id, { isPriority: !current });
       setTasks((prev) => prev.map((t) => (t._id === id ? data.task : t)));
+
+      flash.info(!current ? "Prioritized." : "Unprioritized.");
     } catch (e) {
       setErr(e.message);
+      flash.error(e.message || "Couldn’t update priority.");
     }
   }
 
@@ -69,29 +95,36 @@ export default function Today({ user, onLogout }) {
     try {
       await tasksApi.remove(id);
       setTasks((prev) => prev.filter((t) => t._id !== id));
+      flash.info("Task deleted.");
     } catch (e) {
       setErr(e.message);
+      flash.error(e.message || "Couldn’t delete task.");
     }
   }
 
-  // start focus on a specific task (only if NOT completed and NO reflection)
   async function startFocusSession(taskId) {
     if (!taskId) return;
-    if (activeSession) return;
+    if (activeSession) {
+      flash.warn("A session is already running.");
+      return;
+    }
 
     const task = tasks.find((t) => t._id === taskId);
     if (!task) return;
 
     if (task.completed) {
       setErr("This task is already completed.");
+      flash.warn("Completed tasks can’t start sessions.");
       return;
     }
     if (task.hasReflection) {
       setErr("This task already has a reflection. One session per task.");
+      flash.warn("This task is locked after reflection.");
       return;
     }
     if (!task.isPriority) {
       setErr("You can only start a session from a prioritized task.");
+      flash.warn("Prioritize this task to start a session.");
       return;
     }
 
@@ -115,18 +148,22 @@ export default function Today({ user, onLogout }) {
       if (!res.ok) throw new Error(data?.message || "Could not start session.");
 
       setActiveSession({ sessionId: data.sessionId, taskId });
+      flash.success("Focus session started.");
     } catch (e) {
       setErr(e.message || "Could not start session.");
+      flash.error(e.message || "Could not start session.");
     }
   }
 
   function openEndSessionReflection() {
     if (!activeSession) return;
     setShowReflection(true);
+    // no flash here — modal itself is feedback
   }
 
   function cancelReflection() {
     setShowReflection(false);
+    // no flash — cancel is quiet
   }
 
   function finishReflection(updatedTask) {
@@ -135,6 +172,8 @@ export default function Today({ user, onLogout }) {
     );
     setShowReflection(false);
     setActiveSession(null);
+
+    flash.success("Reflection saved. Task locked.");
   }
 
   return (
@@ -144,7 +183,7 @@ export default function Today({ user, onLogout }) {
       <div className="sr-shell">
         <header className="sr-header">
           <div>
-            <h2 className="sr-title">Stillroom — Today</h2>
+            <h1 className="sr-title">Today</h1>
             <div className="sr-subtitle">
               Constraint → focus → reflection → growth
             </div>
@@ -175,7 +214,7 @@ export default function Today({ user, onLogout }) {
         ) : (
           <div className="sr-grid">
             <section className="sr-card">
-              <h3>Today’s Focus</h3>
+              <h3>Prioritized</h3>
 
               {priority.length === 0 ? (
                 <p className="sr-empty">None</p>
@@ -212,28 +251,14 @@ export default function Today({ user, onLogout }) {
                               title={t.title}
                             >
                               {t.title}
-                            </div>
-
-                            <div className="sr-taskMeta">
-                              {t.hasReflection ? (
-                                <span className="sr-pill">
-                                  Locked after reflection
-                                </span>
-                              ) : (
-                                <span className="sr-pill">Focused</span>
-                              )}
-
-                              {isSessionTask ? (
-                                <span className="sr-pill sr-sessionPill">
-                                  Session in progress
-                                </span>
-                              ) : null}
+                              {isSessionTask ? " — Session in progress" : null}
                             </div>
                           </div>
 
                           <div className="sr-actions">
                             <button
                               className="sr-btn"
+                              type="button"
                               onClick={() =>
                                 togglePriority(t._id, t.isPriority)
                               }
@@ -244,12 +269,13 @@ export default function Today({ user, onLogout }) {
                                   : ""
                               }
                             >
-                              Unfocus
+                              Unprioritize
                             </button>
 
                             {!isSessionTask ? (
                               <button
                                 className="sr-btn sr-btn-primary"
+                                type="button"
                                 onClick={() => startFocusSession(t._id)}
                                 disabled={startDisabled}
                                 title={
@@ -267,6 +293,7 @@ export default function Today({ user, onLogout }) {
                             ) : (
                               <button
                                 className="sr-btn sr-btn-primary"
+                                type="button"
                                 onClick={openEndSessionReflection}
                                 disabled={showReflection}
                               >
@@ -276,6 +303,7 @@ export default function Today({ user, onLogout }) {
 
                             <button
                               className="sr-btn sr-btn-danger"
+                              type="button"
                               onClick={() => deleteTask(t._id)}
                               disabled={deleteDisabled}
                             >
@@ -320,7 +348,10 @@ export default function Today({ user, onLogout }) {
                 <ul className="sr-list">
                   {normal.map((t) => {
                     const anySession = !!activeSession;
-                    const priorityDisabled = anySession || t.completed;
+
+                    // completed tasks in Everything else cannot be prioritized
+                    const priorityDisabled =
+                      anySession || t.completed || priorityCapReached;
 
                     return (
                       <li key={t._id} className="sr-task">
@@ -343,34 +374,30 @@ export default function Today({ user, onLogout }) {
                             >
                               {t.title}
                             </div>
-
-                            <div className="sr-taskMeta">
-                              {t.completed ? (
-                                <span className="sr-pill">Completed</span>
-                              ) : (
-                                <span className="sr-pill">Available</span>
-                              )}
-                            </div>
                           </div>
 
                           <div className="sr-actions">
                             <button
                               className="sr-btn"
+                              type="button"
                               onClick={() =>
                                 togglePriority(t._id, t.isPriority)
                               }
                               disabled={priorityDisabled}
                               title={
-                                t.completed
-                                  ? "Completed tasks can’t be prioritized."
-                                  : ""
+                                priorityCapReached
+                                  ? "You can only prioritize 3 tasks."
+                                  : t.completed
+                                    ? "Completed tasks can’t be prioritized."
+                                    : ""
                               }
                             >
-                              Focus
+                              Prioritize
                             </button>
 
                             <button
                               className="sr-btn sr-btn-danger"
+                              type="button"
                               onClick={() => deleteTask(t._id)}
                               disabled={anySession}
                             >

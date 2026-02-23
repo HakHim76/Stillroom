@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { authApi } from "../api/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/auth.css";
-
+import useFlash from "../hooks/useFlash";
 import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
 import { landingContent } from "../content/landingContent";
+
+import logo from "../assets/stillroom-logo.svg";
 
 export default function Signup({ onSuccess }) {
   const [username, setUsername] = useState("");
@@ -17,10 +19,9 @@ export default function Signup({ onSuccess }) {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const flash = useFlash(); // ✅ added
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-
-  const nav = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -36,8 +37,10 @@ export default function Signup({ onSuccess }) {
       await authApi.signup(username, email, password);
       const me = await authApi.me();
       onSuccess?.(me.user);
+      flash.success("Account created.");
     } catch (e2) {
       setErr(e2.message);
+      flash.error(e2.message || "Signup failed.");
     } finally {
       setBusy(false);
     }
@@ -50,7 +53,10 @@ export default function Signup({ onSuccess }) {
       <main className="auth-page">
         <div className="auth-card">
           <div className="auth-top">
-            <div className="auth-mark">SR</div>
+            <Link to="/" className="sr-authBrand" aria-label="Home">
+              <img src={logo} alt="Stillroom" className="sr-authLogo" />
+            </Link>
+
             <div>
               <h2 className="auth-title">Create your Stillroom</h2>
               <p className="auth-sub">A small step toward calmer work.</p>
@@ -161,10 +167,7 @@ export default function Signup({ onSuccess }) {
         </div>
       </main>
 
-      <FooterMinimal
-        brand={landingContent.brand}
-        links={landingContent.footerLinks}
-      />
+      <FooterMinimal brand={landingContent.brand} />
     </div>
   );
 }

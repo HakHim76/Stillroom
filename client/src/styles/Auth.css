@@ -129,3 +129,40 @@
   opacity: 1;
   text-decoration: underline;
 }
+.sr-authBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.sr-authLogo {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+.sr-authName {
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+.sr-authBrand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  text-decoration: none;
+}
+
+.sr-authLogo {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+.sr-authLogo {
+  width: 56px; /* bigger logo */
+  height: 56px;
+  display: block;
+}

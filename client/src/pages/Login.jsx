@@ -1,21 +1,22 @@
 import { useState } from "react";
 import { authApi } from "../api/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/auth.css";
+import useFlash from "../hooks/useFlash";
 
 import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
 import { landingContent } from "../content/landingContent";
 
+import logo from "../assets/stillroom-logo.svg";
+
 export default function Login({ onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-
+  const flash = useFlash();
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-
-  const nav = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -26,8 +27,11 @@ export default function Login({ onSuccess }) {
       await authApi.login(email, password);
       const me = await authApi.me();
       onSuccess?.(me.user);
+      setErr("");
+      flash.success("Welcome back.");
     } catch (e2) {
       setErr(e2.message);
+      flash.error(e2.message || "Login failed.");
     } finally {
       setBusy(false);
     }
@@ -40,7 +44,10 @@ export default function Login({ onSuccess }) {
       <main className="auth-page">
         <div className="auth-card">
           <div className="auth-top">
-            <div className="auth-mark">SR</div>
+            <Link to="/" className="sr-authBrand" aria-label="Home">
+              <img src={logo} alt="Stillroom" className="sr-authLogo" />
+            </Link>
+
             <div>
               <h2 className="auth-title">Enter Stillroom</h2>
               <p className="auth-sub">A quiet system for focused work.</p>
@@ -112,10 +119,7 @@ export default function Login({ onSuccess }) {
         </div>
       </main>
 
-      <FooterMinimal
-        brand={landingContent.brand}
-        links={landingContent.footerLinks}
-      />
+      <FooterMinimal brand={landingContent.brand} />
     </div>
   );
 }
