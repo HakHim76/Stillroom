@@ -28,7 +28,9 @@ export default function Login({ onSuccess }) {
       const me = await authApi.me();
       onSuccess?.(me.user);
       setErr("");
-      flash.success(`Welcome ,${me.user.username}. Your stillroom is ready.`);
+      flash.success(
+        `Welcome back,${me.user.username}. Your stillroom is ready.`,
+      );
     } catch (e2) {
       setErr(e2.message);
       flash.error(e2.message || "Login failed.");
