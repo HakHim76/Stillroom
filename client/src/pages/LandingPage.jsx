@@ -1,7 +1,7 @@
 import "../styles/Landing.css";
 import { useMemo, useState } from "react";
-import { landingContent } from "../content/landingContent";
-import { INSIGHTS } from "../content/insights";
+import { landingContent } from "../Content/landingContent";
+import { INSIGHTS } from "../Content/insights";
 import LandingNav from "../components/LandingNav";
 import HeroSection from "../components/HeroSection";
 import PillarsSection from "../components/PillarsSection";
