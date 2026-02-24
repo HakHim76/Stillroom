@@ -11,15 +11,14 @@ const sessionRoutes = require("./routes/session");
 
 const app = express();
 app.set("etag", false);
-app.set("trust proxy", 1);
 
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("Mongo connected"))
   .catch((err) => console.log("Mongo error", err));
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
+const isProd = process.env.NODE_ENV === "production";
 
 app.set("trust proxy", 1);
 
@@ -30,9 +29,17 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false,
+      sameSite: isProd ? "none" : "lax",
+      secure: isProd,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
+  }),
+);
+
+app.use(
+  cors({
+    origin: isProd ? process.env.CLIENT_URL : "http://localhost:5173",
+    credentials: true,
   }),
 );
 
