@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../styles/today.css";
+import "../styles/Today.css";
 
 export default function ReflectionModal({ sessionId, onDone, onCancel }) {
   const [mood, setMood] = useState("");
