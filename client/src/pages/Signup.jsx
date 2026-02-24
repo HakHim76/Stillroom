@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { authApi } from "../api/auth";
 import { Link } from "react-router-dom";
-import "../styles/auth.css";
+import "../styles/Auth.css";
 import useFlash from "../hooks/useFlash";
 import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
