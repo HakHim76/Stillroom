@@ -6,7 +6,6 @@ import useFlash from "../hooks/useFlash";
 
 import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
-import { landingContent } from "../content/landingContent";
 
 import logo from "../assets/stillroom-logo.svg";
 
