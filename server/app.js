@@ -38,14 +38,24 @@ app.use(
 
 app.use(
   cors({
-    origin: isProd ? process.env.CLIENT_URL : "http://localhost:5173",
+    origin: true,
     credentials: true,
   }),
 );
-
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/session", sessionRoutes);
+
+const path = require("path");
+const buildPath = path.join(__dirname, "..", "client", "dist");
+
+app.use(express.static(buildPath));
+
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(buildPath, "index.html"));
+});
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
