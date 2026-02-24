@@ -30,7 +30,7 @@ export default function About({ user, onLogout }) {
             useful.
           </p>
 
-          <p>That idea stayed with us.</p>
+          <p>That idea stayed with me.</p>
 
           <p>
             Stillroom, the product, is built around the same principle. You

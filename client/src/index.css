@@ -1,73 +1,55 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-:root {
   --sr-accent: #2563eb;
+
+  --sr-bg: #eef5fb;
+  --sr-text: #0f172a;
+  --sr-muted: rgba(15, 23, 42, 0.65);
 }
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+
+* {
+  box-sizing: border-box;
 }
-a:hover {
-  color: #535bf2;
+
+html,
+body {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--sr-bg);
+  color: var(--sr-text);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
+  overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ✅ HARD OVERRIDE: remove Vite template constraints */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
 .sr-fade {
   opacity: 0;
   transform: translateY(4px);
@@ -76,13 +58,10 @@ button:focus-visible {
     transform 180ms ease;
   will-change: opacity, transform;
 }
-
 .sr-fade--in {
   opacity: 1;
   transform: translateY(0);
 }
-
-/* respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .sr-fade,
   .sr-fade--in {
@@ -90,58 +69,56 @@ button:focus-visible {
     transform: none;
   }
 }
-.sr-btn-primary {
-  background: var(--sr-accent);
-  border-color: var(--sr-accent);
-  color: white;
+/* Catch-all: kill any leftover Vite/App.css layout constraints */
+#root,
+#root > * {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+/* hard reset any “centered app” constraints from Vite template or other css */
+html,
+body,
+#root {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.sr-btn-primary:hover {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+#root > * {
+  width: 100% !important;
+  max-width: none !important;
 }
-.flash-wrapper {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 9999;
-}
-
-.flash {
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  animation: fadeIn 0.25s ease;
+/* ---- SAFARI + VITE TEMPLATE NUKE ---- */
+/* If ANY css still has body { display:flex; place-items:center }, this fixes the “narrow column” issue */
+html,
+body {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
 }
 
-.flash.info {
-  background: #e0f2fe;
-  color: #0369a1;
-}
-.flash.success {
-  background: #dcfce7;
-  color: #166534;
-}
-.flash.error {
-  background: #fee2e2;
-  color: #991b1b;
-}
-.flash.warn {
-  background: #fef9c3;
-  color: #854d0e;
+body {
+  display: block !important;
+  place-items: initial !important;
+  align-items: initial !important;
+  justify-content: initial !important;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+#root {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  display: block !important;
+}
+
+#root > * {
+  width: 100% !important;
+  max-width: none !important;
 }

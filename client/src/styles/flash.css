@@ -12,24 +12,21 @@
 
 .flash {
   pointer-events: auto;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   min-width: 240px;
   max-width: 420px;
   text-align: center;
-}
 
-.flash {
   animation:
     flashIn 0.2s ease-out,
     flashOut 0.4s ease-in forwards;
   animation-delay: 0s, 2.6s;
 }
 
-@keyframes flashOut {
-  to {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-}
 .flash.info {
   background: #e0f2fe;
   color: #0369a1;
@@ -55,5 +52,12 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes flashOut {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }

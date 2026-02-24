@@ -158,12 +158,10 @@ export default function Today({ user, onLogout }) {
   function openEndSessionReflection() {
     if (!activeSession) return;
     setShowReflection(true);
-    // no flash here — modal itself is feedback
   }
 
   function cancelReflection() {
     setShowReflection(false);
-    // no flash — cancel is quiet
   }
 
   function finishReflection(updatedTask) {
@@ -191,6 +189,15 @@ export default function Today({ user, onLogout }) {
         </header>
 
         {err && <div className="sr-alert">{err}</div>}
+
+        {/* NEW: clear banner when session is running */}
+        {activeSession ? (
+          <div className="sr-sessionBanner">
+            <div>
+              <b>Session in progress</b> — One task. Full focus.
+            </div>
+          </div>
+        ) : null}
 
         <form className="sr-toolbar" onSubmit={addTask}>
           <input
@@ -232,7 +239,13 @@ export default function Today({ user, onLogout }) {
                     const deleteDisabled = anySession;
 
                     return (
-                      <li key={t._id} className="sr-task">
+                      <li
+                        key={t._id}
+                        className={[
+                          "sr-task",
+                          isSessionTask ? "sr-task--active" : "",
+                        ].join(" ")}
+                      >
                         <div className="sr-taskRow">
                           <input
                             className="sr-checkbox"
@@ -251,7 +264,6 @@ export default function Today({ user, onLogout }) {
                               title={t.title}
                             >
                               {t.title}
-                              {isSessionTask ? " — Session in progress" : null}
                             </div>
                           </div>
 
