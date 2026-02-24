@@ -1,4 +1,4 @@
-import "../styles/landing.css";
+import "../styles/Landing.css";
 import { useMemo, useState } from "react";
 import { landingContent } from "../content/landingContent";
 import { INSIGHTS } from "../content/insights";

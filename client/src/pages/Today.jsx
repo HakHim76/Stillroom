@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { tasksApi } from "../api/tasks";
 import ReflectionModal from "../components/ReflectionModal";
-import "../styles/today.css";
+import "../styles/Today.css";
 import LandingNav from "../components/LandingNav";
 import useFlash from "../hooks/useFlash";
 

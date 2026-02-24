@@ -19,7 +19,7 @@ export default function Signup({ onSuccess }) {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const flash = useFlash(); // ✅ added
+  const flash = useFlash(); //
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
