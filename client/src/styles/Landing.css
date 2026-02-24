@@ -734,3 +734,137 @@ html {
     width: 100%;
   }
 }
+/* -------------------- FINAL MOBILE HERO TUNING -------------------- */
+/* iPhone/phones: make CTAs smaller + side-by-side, and float cards around room */
+@media (max-width: 600px) {
+  /* CTA buttons: small + side-by-side */
+  .sr-cta {
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .sr-cta .sr-btn {
+    width: auto;
+    max-width: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  /* give hero a tighter feel */
+  .sr-hero {
+    padding: 46px 0 28px;
+  }
+
+  /* Visual stage */
+  .sr-hero__visual {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    height: 420px; /* fixed stage so cards can sit "around" */
+    margin: 0 auto;
+  }
+
+  .sr-room {
+    width: min(360px, 92%);
+    z-index: 2;
+  }
+
+  /* Floating cards: make them small and position around the room (not stacked) */
+  .sr-float {
+    position: absolute !important;
+    width: 150px;
+    padding: 12px 12px;
+    border-radius: 16px;
+    margin: 0 !important;
+    transform: none !important;
+    z-index: 3;
+  }
+
+  .sr-float__title {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  .sr-float__body {
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+
+  /* Positions (tuned for phone widths) */
+  .sr-float--a {
+    left: 4%;
+    top: 56%;
+  }
+
+  .sr-float--b {
+    right: 4%;
+    top: 52%;
+  }
+
+  .sr-float--c {
+    left: 50%;
+    bottom: 6%;
+    width: 170px;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* very small phones: slightly smaller cards so they don't collide */
+@media (max-width: 380px) {
+  .sr-hero__visual {
+    height: 390px;
+  }
+
+  .sr-float {
+    width: 138px;
+    padding: 11px 11px;
+  }
+
+  .sr-float--c {
+    width: 158px;
+  }
+}
+/* -------------------- NAV BRAND LOCKUP TUNING -------------------- */
+
+/* Make logo + wordmark feel like one unit */
+.sr-brandWrap {
+  gap: 2px; /* closer than before */
+  align-items: center;
+}
+
+/* Logo size + optical alignment */
+.sr-brandLogo {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  margin-top: 1px; /* tiny nudge for baseline alignment */
+}
+
+/* Brand text sizing + line-height */
+.sr-brandText {
+  font-size: 1.22rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* Mobile: slightly smaller to keep it tight */
+@media (max-width: 600px) {
+  .sr-brandLogo {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .sr-brandText {
+    font-size: 1.15rem;
+  }
+
+  .sr-brandWrap {
+    gap: 7px;
+  }
+}
+.sr-brandWrap {
+  color: var(--sr-accent);
+}

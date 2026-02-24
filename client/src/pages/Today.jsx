@@ -27,7 +27,6 @@ export default function Today({ user, onLogout }) {
       })
       .catch((e) => {
         setErr(e.message);
-        // no flash here — avoid noise on load
       })
       .finally(() => setLoading(false));
 
@@ -84,7 +83,7 @@ export default function Today({ user, onLogout }) {
       const data = await tasksApi.patch(id, { isPriority: !current });
       setTasks((prev) => prev.map((t) => (t._id === id ? data.task : t)));
 
-      flash.info(!current ? "Prioritized." : "Unprioritized.");
+      flash.info(!current ? "Moved to focus." : "Removed from focus.");
     } catch (e) {
       setErr(e.message);
       flash.error(e.message || "Couldn’t update priority.");
@@ -171,7 +170,7 @@ export default function Today({ user, onLogout }) {
     setShowReflection(false);
     setActiveSession(null);
 
-    flash.success("Reflection saved. Task locked.");
+    flash.success("Reflection saved. Task complete.");
   }
 
   return (

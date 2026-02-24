@@ -37,7 +37,7 @@ export default function Signup({ onSuccess }) {
       await authApi.signup(username, email, password);
       const me = await authApi.me();
       onSuccess?.(me.user);
-      flash.success("Account created.");
+      flash.success("Your stillroom is ready.");
     } catch (e2) {
       setErr(e2.message);
       flash.error(e2.message || "Signup failed.");

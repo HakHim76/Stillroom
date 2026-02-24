@@ -51,7 +51,6 @@ router.post("/login", async (req, res) => {
     const cleanEmail = String(email).trim().toLowerCase();
 
     const user = await User.findOne({ email: cleanEmail });
-    console.log("USER FOUND?", !!user);
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -90,8 +89,6 @@ router.post("/logout", (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    res.set("Cache-Control", "no-store");
-
     if (!req.session.userId) return res.status(401).json({ user: null });
 
     const user = await User.findById(req.session.userId).select(

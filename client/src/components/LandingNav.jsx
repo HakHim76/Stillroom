@@ -18,7 +18,6 @@ export default function LandingNav({ brand, user, onLogout }) {
     }
   }
 
-  // Close menu on resize to desktop
   useEffect(() => {
     function onResize() {
       if (window.innerWidth > 720) setMenuOpen(false);

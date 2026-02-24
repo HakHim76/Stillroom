@@ -27,8 +27,6 @@ router.post("/start", async (req, res) => {
       startedAt: new Date(),
     });
 
-    console.log("FOCUS SESSION STARTED:", session._id);
-
     res.json({ sessionId: session._id });
   } catch (err) {
     console.error("START SESSION ERROR:", err);
