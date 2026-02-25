@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { authApi } from "../api/auth";
 import { Link } from "react-router-dom";
 import "../styles/Auth.css";
@@ -25,6 +25,19 @@ export default function Login({ onSuccess }) {
   const flash = useFlash();
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // refs for autofill sync
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  // sync browser autofill → React state
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (emailRef.current?.value) setEmail(emailRef.current.value);
+      if (passwordRef.current?.value) setPassword(passwordRef.current.value);
+    }, 100);
+    return () => clearTimeout(id);
+  }, []);
 
   const onEmail = (e) => setEmail(e.target.value);
   const onPassword = (e) => setPassword(e.target.value);
@@ -77,6 +90,7 @@ export default function Login({ onSuccess }) {
           {err && <div className="auth-error">{err}</div>}
 
           <form className="auth-form" onSubmit={handleSubmit} autoComplete="on">
+            {/* Email */}
             <div className="auth-field">
               <label htmlFor="sr-login-email">Email</label>
               <input
@@ -84,7 +98,7 @@ export default function Login({ onSuccess }) {
                 id="sr-login-email"
                 name="username"
                 type="email"
-                autoComplete="email"
+                autoComplete="username"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
@@ -96,6 +110,7 @@ export default function Login({ onSuccess }) {
               />
             </div>
 
+            {/* Password */}
             <div className="auth-field">
               <div className="auth-labelRow">
                 <label htmlFor="sr-login-password">Password</label>
