@@ -1,6 +1,7 @@
 import "../styles/About.css";
 import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
+import { landingContent } from "../Content/landingContent";
 
 export default function About({ user, onLogout }) {
   return (

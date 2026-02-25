@@ -4,6 +4,7 @@ import ReflectionModal from "../components/ReflectionModal";
 import "../styles/Today.css";
 import LandingNav from "../components/LandingNav";
 import useFlash from "../hooks/useFlash";
+import { landingContent } from "../Content/landingContent";
 
 export default function Today({ user, onLogout }) {
   const [tasks, setTasks] = useState([]);

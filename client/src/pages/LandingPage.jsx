@@ -6,6 +6,7 @@ import LandingNav from "../components/LandingNav";
 import HeroSection from "../components/HeroSection";
 import PillarsSection from "../components/PillarsSection";
 import FooterMinimal from "../components/FooterMinimal";
+import { landingContent } from "../Content/landingContent";
 
 export default function LandingPage({ user, onLogout }) {
   const todayKey = new Date().toISOString().slice(0, 10);

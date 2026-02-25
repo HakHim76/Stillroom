@@ -5,6 +5,7 @@ import "../styles/Auth.css";
 import useFlash from "../hooks/useFlash";
 import LandingNav from "../components/LandingNav";
 import FooterMinimal from "../components/FooterMinimal";
+import { landingContent } from "../Content/landingContent";
 
 import logo from "../assets/stillroom-logo.svg";
 
