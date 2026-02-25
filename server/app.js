@@ -1,16 +1,24 @@
+// server/app.js
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
 const sessionRoutes = require("./routes/session");
 
 const app = express();
+
+const PORT = process.env.PORT || 3000;
+const isProd = process.env.NODE_ENV === "production";
+
 app.set("etag", false);
+
+app.set("trust proxy", 1);
 
 mongoose
   .connect(process.env.MONGO_URL)
@@ -18,9 +26,24 @@ mongoose
   .catch((err) => console.log("Mongo error", err));
 
 app.use(express.json());
-const isProd = process.env.NODE_ENV === "production";
 
-app.set("trust proxy", 1);
+// const allowedOrigins = [
+//   "http://localhost:5173",
+//   "http://localhost:4173",
+//   "http://localhost:3000",
+//   process.env.CLIENT_ORIGIN,
+// ].filter(Boolean);
+
+// app.use(
+//   cors({
+//     origin: function (origin, cb) {
+//       if (!origin) return cb(null, true);
+//       if (allowedOrigins.includes(origin)) return cb(null, true);
+//       return cb(new Error(`CORS blocked for origin: ${origin}`));
+//     },
+//     credentials: true,
+//   }),
+// );
 
 app.use(
   session({
@@ -36,27 +59,20 @@ app.use(
   }),
 );
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  }),
-);
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/session", sessionRoutes);
 
-const path = require("path");
-const buildPath = path.join(__dirname, "..", "client", "dist");
+const clientDistPath = path.join(__dirname, "..", "client", "dist");
 
-app.use(express.static(buildPath));
-
-app.get("/api/health", (req, res) => res.json({ ok: true }));
+app.use(express.static(clientDistPath));
 
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(buildPath, "index.html"));
+  res.sendFile(path.join(clientDistPath, "index.html"));
 });
 
-app.get("/api/health", (req, res) => res.json({ ok: true }));
-
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
