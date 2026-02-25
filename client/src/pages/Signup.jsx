@@ -9,6 +9,16 @@ import { landingContent } from "../Content/landingContent";
 
 import logo from "../assets/stillroom-logo.svg";
 
+const emailRegex = /^\S+@\S+\.\S+$/;
+
+function validateAuth({ email, password, confirm }) {
+  if (!emailRegex.test(email)) return "That email doesn’t look right.";
+  if (password.length < 8) return "Password must be at least 8 characters.";
+  if (confirm !== undefined && password !== confirm)
+    return "Passwords don’t match.";
+  return null;
+}
+
 export default function Signup({ onSuccess }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -19,18 +29,25 @@ export default function Signup({ onSuccess }) {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const flash = useFlash(); //
+  const flash = useFlash();
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const onUsername = (e) => setUsername(e.target.value);
+  const onEmail = (e) => setEmail(e.target.value);
+  const onPassword = (e) => setPassword(e.target.value);
+  const onConfirm = (e) => setConfirm(e.target.value);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErr("");
 
-    if (!username.trim()) return setErr("Username is required.");
-    if (!email.trim()) return setErr("Email is required.");
-    if (!password) return setErr("Password is required.");
-    if (password !== confirm) return setErr("Passwords do not match.");
+    const errorMsg = validateAuth({ email, password, confirm });
+    if (errorMsg) {
+      setErr(errorMsg);
+      flash.warn(errorMsg);
+      return;
+    }
 
     setBusy(true);
     try {
@@ -65,29 +82,19 @@ export default function Signup({ onSuccess }) {
 
           {err && <div className="auth-error">{err}</div>}
 
-          <form
-            className="auth-form"
-            onSubmit={handleSubmit}
-            autoComplete="off"
-          >
-            <input
-              type="text"
-              name="prevent_autofill"
-              autoComplete="off"
-              style={{ display: "none" }}
-            />
-
+          <form className="auth-form" onSubmit={handleSubmit} autoComplete="on">
             <div className="auth-field">
               <label htmlFor="sr-signup-username">Username</label>
               <input
                 id="sr-signup-username"
-                name="sr_signup_username"
-                autoComplete="off"
+                name="username"
+                autoComplete="username"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={onUsername}
+                onInput={onUsername}
                 placeholder="your name"
               />
             </div>
@@ -96,14 +103,16 @@ export default function Signup({ onSuccess }) {
               <label htmlFor="sr-signup-email">Email</label>
               <input
                 id="sr-signup-email"
-                name="sr_signup_email"
-                autoComplete="off"
+                name="email"
+                type="email"
+                autoComplete="email"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 inputMode="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={onEmail}
+                onInput={onEmail}
                 placeholder="you@example.com"
               />
             </div>
@@ -123,11 +132,12 @@ export default function Signup({ onSuccess }) {
 
               <input
                 id="sr-signup-password"
-                name="sr_signup_password"
+                name="new-password"
                 autoComplete="new-password"
                 type={showPw ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={onPassword}
+                onInput={onPassword}
                 placeholder="••••••••"
               />
             </div>
@@ -147,11 +157,12 @@ export default function Signup({ onSuccess }) {
 
               <input
                 id="sr-signup-confirm"
-                name="sr_signup_confirm"
+                name="confirm-password"
                 autoComplete="new-password"
                 type={showConfirm ? "text" : "password"}
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onChange={onConfirm}
+                onInput={onConfirm}
                 placeholder="••••••••"
               />
             </div>

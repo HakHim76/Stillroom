@@ -3,7 +3,27 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 
 const router = express.Router();
+const emailRegex = /^\S+@\S+\.\S+$/;
 
+function validateSignup({ username, email, password }) {
+  if (!username || username.length < 2)
+    return "Username must be at least 2 characters.";
+
+  if (!emailRegex.test(email)) return "Invalid email address.";
+
+  if (!password || password.length < 8)
+    return "Password must be at least 8 characters.";
+
+  return null;
+}
+
+function validateLogin({ email, password }) {
+  if (!emailRegex.test(email)) return "Invalid email.";
+
+  if (!password) return "Password required.";
+
+  return null;
+}
 router.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -25,6 +45,8 @@ router.post("/signup", async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const error = validateSignup(req.body);
+    if (error) return res.status(400).json({ message: error });
 
     const user = await User.create({
       username: cleanUsername,
@@ -49,7 +71,8 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const cleanEmail = String(email).trim().toLowerCase();
-
+    const error = validateLogin(req.body);
+    if (error) return res.status(400).json({ message: error });
     const user = await User.findOne({ email: cleanEmail });
 
     if (!user) {

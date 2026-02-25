@@ -10,6 +10,14 @@ import { landingContent } from "../Content/landingContent";
 
 import logo from "../assets/stillroom-logo.svg";
 
+const emailRegex = /^\S+@\S+\.\S+$/;
+
+function validateAuth({ email, password }) {
+  if (!emailRegex.test(email)) return "That email doesn’t look right.";
+  if (password.length < 8) return "Password must be at least 8 characters.";
+  return null;
+}
+
 export default function Login({ onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,18 +26,28 @@ export default function Login({ onSuccess }) {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const onEmail = (e) => setEmail(e.target.value);
+  const onPassword = (e) => setPassword(e.target.value);
+
   async function handleSubmit(e) {
     e.preventDefault();
     setErr("");
-    setBusy(true);
 
+    const errorMsg = validateAuth({ email, password });
+    if (errorMsg) {
+      setErr(errorMsg);
+      flash.warn(errorMsg);
+      return;
+    }
+
+    setBusy(true);
     try {
       await authApi.login(email, password);
       const me = await authApi.me();
       onSuccess?.(me.user);
       setErr("");
       flash.success(
-        `Welcome back,${me.user.username}. Your stillroom is ready.`,
+        `Welcome back, ${me.user.username}. Your stillroom is ready.`,
       );
     } catch (e2) {
       setErr(e2.message);
@@ -58,30 +76,22 @@ export default function Login({ onSuccess }) {
 
           {err && <div className="auth-error">{err}</div>}
 
-          <form
-            className="auth-form"
-            onSubmit={handleSubmit}
-            autoComplete="off"
-          >
-            <input
-              type="text"
-              name="prevent_autofill"
-              autoComplete="off"
-              style={{ display: "none" }}
-            />
-
+          <form className="auth-form" onSubmit={handleSubmit} autoComplete="on">
             <div className="auth-field">
               <label htmlFor="sr-login-email">Email</label>
               <input
+                ref={emailRef}
                 id="sr-login-email"
-                name="sr_login_email"
-                autoComplete="off"
+                name="username"
+                type="email"
+                autoComplete="email"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 inputMode="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={onEmail}
+                onInput={onEmail}
                 placeholder="you@example.com"
               />
             </div>
@@ -100,12 +110,14 @@ export default function Login({ onSuccess }) {
               </div>
 
               <input
+                ref={passwordRef}
                 id="sr-login-password"
-                name="sr_login_password"
-                autoComplete="new-password"
+                name="password"
+                autoComplete="current-password"
                 type={showPw ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={onPassword}
+                onInput={onPassword}
                 placeholder="••••••••"
               />
             </div>
